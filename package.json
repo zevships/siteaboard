@@ -1,0 +1,39 @@
+{
+  "name": "siteaboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open-source website operations, on your machine, with your agent",
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=26 <27"
+  },
+  "scripts": {
+    "dev": "vite --config apps/admin/vite.config.ts",
+    "build": "vite build --config apps/admin/vite.config.ts",
+    "preview": "vite preview --config apps/admin/vite.config.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.ts",
+    "test:e2e": "playwright test",
+    "check:public": "node scripts/check-public.mjs",
+    "check": "pnpm typecheck && pnpm test && pnpm build && pnpm check:public",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@tanstack/react-router": "1.170.11",
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "26.0.0",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.2",
+    "prettier": "3.8.4",
+    "typescript": "5.9.3",
+    "vite": "8.0.16"
+  }
+}
