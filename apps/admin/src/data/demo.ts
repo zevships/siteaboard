@@ -79,3 +79,54 @@ export const searchExamples = [
   { query: 'a calmer creative routine', site: 'Fieldnotes', impressions: 8300, clicks: 166 },
   { query: 'starter kit for side projects', site: 'OrbitKit', impressions: 5600, clicks: 336 },
 ];
+
+// A single site's series sums to the same totals used by the portfolio.
+export function getDemoSite(siteId: string, period: Period) {
+  const dashboard = getDemoDashboard(period);
+  const index = Math.max(
+    0,
+    dashboard.sites.findIndex((site) => site.id === siteId),
+  );
+  const site = dashboard.sites[index];
+  const allocate = (total: number, weights: number[]) => {
+    const sum = weights.reduce((a, b) => a + b, 0);
+    let cumulative = 0,
+      assigned = 0;
+    return weights.map((weight) => {
+      cumulative += weight;
+      const next = Math.round((total * cumulative) / sum);
+      const value = next - assigned;
+      assigned = next;
+      return value;
+    });
+  };
+  const visits = allocate(
+    site.visits,
+    dashboard.daily.map((point) => point.visits),
+  );
+  const goals = allocate(
+    site.goals,
+    dashboard.daily.map((point) => point.visits),
+  );
+  const previous = allocate(
+    Math.round(site.visits / 1.224),
+    dashboard.daily.map((point) => point.previous),
+  );
+  const daily = dashboard.daily.map((point, i) => ({
+    day: point.day,
+    visits: visits[i],
+    previous: previous[i],
+    goals: goals[i],
+  }));
+  const full = getDemoDashboard(30);
+  const fullSite = full.sites[index];
+  const todayVisits = Math.round(
+    (full.daily.at(-1)!.visits * fullSite.visits) / full.totals.visits,
+  );
+  const todayGoals = Math.round((todayVisits * fullSite.goals) / fullSite.visits);
+  const hourly = allocate(
+    todayVisits,
+    [8, 6, 5, 4, 4, 5, 7, 9, 10, 9, 12, 14, 13, 16, 15, 18, 19, 11],
+  );
+  return { site, daily, todayVisits, todayGoals, hourly };
+}

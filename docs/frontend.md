@@ -19,7 +19,9 @@ package owns dependencies and scripts until more executable modules exist.
 6. Add the route to the browser smoke checks. Check narrow layouts and both modes.
 
 The route registry controls navigation; pages are separate lazy chunks. The shell
-owns sidebar, toolbar, loading/error/not-found states, and the content outlet.
+owns horizontal top navigation, appearance controls, loading/error/not-found states,
+and the content outlet. Mobile navigation expands below the header.
+The site-detail query retains the selected site and period across reloads.
 Hash history allows copied URLs and refreshes on static hosting without a rewrite
 server. Vite's `SITEABOARD_BASE_PATH` controls asset URLs, not hash route paths.
 
@@ -62,3 +64,19 @@ pnpm test:e2e
 Tests run the production bundle under `/siteaboard/`, on desktop and mobile. Review
 screenshots in `.local/screenshots/` after UI changes. Keep development/preview
 bound to loopback; do not use them as public production servers.
+
+## Visual structure
+
+Use a polished operations UI: horizontal navigation, a wide content region (maximum
+1360px), readable 14–15px body copy, restrained borders, and color reserved for
+charts, status, and restrained brand accents. Soft surface gradients, a decorative
+SVG route in the greeting panel, and light shadows give the interface depth while
+keeping data legible. Do not introduce a permanent sidebar or marketing hero into
+the dashboard. The home page groups today's and selected-period metrics by site,
+then shows follow-ups and task status. Site detail puts its selector, period, data
+notes, journey counts, and chart in that order.
+
+`SiteOperations`, `PeriodControl`, and `TaskList` are reusable page sections. Keep
+fixtures separate from those components. The demo journey is illustrative event
+counts, not verified user conversions; hourly gray bars are a visual reference.
+Verify desktop, tablet, and mobile layouts with Chinese and English copy.

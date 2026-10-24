@@ -58,6 +58,17 @@ const routes = navigation.map((item) => {
   return createRoute({
     getParentRoute: () => root,
     path: item.path,
+    validateSearch: (search: Record<string, unknown>) =>
+      item.path === '/sites'
+        ? {
+            site:
+              typeof search.site === 'string' &&
+              ['tinycanvas', 'fieldnotes', 'orbitkit'].includes(search.site)
+                ? search.site
+                : 'tinycanvas',
+            days: search.days === 30 || search.days === '30' ? 30 : 7,
+          }
+        : {},
     component: () => (
       <Suspense fallback={<Loading />}>
         <Page />

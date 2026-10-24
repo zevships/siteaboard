@@ -8,7 +8,7 @@ connectors, and agent skills are planned. Keep implementation status accurate.
 
 - Use Node 26 and pnpm 10.20.0; install with `pnpm install --frozen-lockfile`.
 - Run `pnpm format:check` and `pnpm check` before committing. For UI changes,
-  run `pnpm test:e2e` and inspect desktop/mobile light and dark screenshots.
+  run `pnpm test:e2e` and inspect desktop/tablet/mobile light and dark screenshots.
 - Format with `pnpm format`. Keep scratch outputs in ignored `.local/`.
 - Update the relevant README and docs with behavior changes. Use synthetic fixtures
   and meaningful tests for contracts, navigation, preferences, and access boundaries.
@@ -20,6 +20,9 @@ connectors, and agent skills are planned. Keep implementation status accurate.
   author identity. Push and deploy only within the user's authorized scope.
 
 ## Frontend boundaries
+
+- Follow the operations layout in docs/frontend.md: horizontal navigation, wide
+  content, readable type, per-site metric groups, and compact operational lists.
 
 - Each page has its own directory and default component under `apps/admin/src/pages`.
   Add its navigation metadata in `app/navigation.ts` and lazy import in `app/router.tsx`.

@@ -10,8 +10,8 @@ export function AppShell() {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
-  const sidebar = useRef<HTMLElement>(null);
-  const restoreMenuFocus = useRef(false);
+  const nav = useRef<HTMLElement>(null);
+  const restoreFocus = useRef(false);
   const active = navigation.find((item) => item.path === pathname);
   useEffect(() => {
     document.title = `${active ? t(active.label) : 'SiteAboard'} · SiteAboard`;
@@ -22,171 +22,83 @@ export function AppShell() {
   }, [pathname]);
   useEffect(() => {
     if (!open) {
-      if (restoreMenuFocus.current) menuButton.current?.focus();
-      restoreMenuFocus.current = false;
+      if (restoreFocus.current) menuButton.current?.focus();
+      restoreFocus.current = false;
       return;
     }
-    restoreMenuFocus.current = true;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    sidebar.current?.querySelector<HTMLButtonElement>('button')?.focus();
-    const keydown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpen(false);
-      }
-      if (e.key === 'Tab') {
-        const controls = Array.from(
-          sidebar.current?.querySelectorAll<HTMLElement>('a, button') ?? [],
-        ).filter((el) => el.getClientRects().length > 0);
-        const first = controls[0],
-          last = controls.at(-1);
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
-        }
-      }
+    restoreFocus.current = true;
+    nav.current?.querySelector<HTMLButtonElement>('button')?.focus();
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
     };
     document.addEventListener('keydown', keydown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', keydown);
-    };
+    return () => document.removeEventListener('keydown', keydown);
   }, [open]);
   return (
     <div className="app-shell">
       <a
         className="skip-link"
         href="#main-content"
-        onClick={(e) => {
-          e.preventDefault();
+        onClick={(event) => {
+          event.preventDefault();
           document.getElementById('main-content')?.focus();
         }}
       >
         {t('skip')}
       </a>
-      {open && (
-        <div
-          className="sidebar-backdrop"
-          onClick={() => {
-            setOpen(false);
-          }}
-        />
-      )}
-      <aside
-        ref={sidebar}
-        className={`sidebar ${open ? 'is-open' : ''}`}
-        aria-label={t('workspace')}
-      >
-        <div className="brand-row">
-          <Link to="/" className="brand" aria-label="SiteAboard">
-            <BrandMark />
-            <span>
-              SiteAboard<span className="brand-dot">.</span>
-            </span>
-          </Link>
+      <header className="topbar">
+        <Link to="/" className="brand">
+          <BrandMark />
+          SiteAboard<span>{t('brandSubtitle')}</span>
+        </Link>
+        <button
+          ref={menuButton}
+          className="icon-button mobile-only"
+          aria-label={t('openMenu')}
+          aria-expanded={open}
+          aria-controls="primary-navigation"
+          onClick={() => setOpen(!open)}
+        >
+          <Icon name="menu" />
+        </button>
+        <nav
+          ref={nav}
+          id="primary-navigation"
+          className={`top-nav ${open ? 'is-open' : ''}`}
+          aria-label={t('workspace')}
+        >
           <button
-            className="icon-button mobile-only"
+            className="icon-button mobile-only nav-close"
             aria-label={t('closeMenu')}
-            onClick={() => {
-              setOpen(false);
-            }}
+            onClick={() => setOpen(false)}
           >
             <Icon name="close" />
           </button>
-        </div>
-        <div className="workspace-card">
-          <span className="workspace-avatar">S</span>
-          <div>
-            <strong>{t('demoWorkspace')}</strong>
-            <span>{t('localFirst')}</span>
-          </div>
-          <span className="status-dot" />
-        </div>
-        <nav>
-          {(['workspace', 'tools'] as const).map((group) => (
-            <div className="nav-group" key={group}>
-              <p className="nav-label">{t(group)}</p>
-              {navigation
-                .filter((item) => item.group === group)
-                .map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`nav-link ${pathname === item.path ? 'active' : ''}`}
-                    aria-current={pathname === item.path ? 'page' : undefined}
-                    onClick={() => setOpen(false)}
-                  >
-                    <Icon name={item.icon} />
-                    <span>{t(item.label)}</span>
-                    {item.path === '/activity' && <span className="nav-count">3</span>}
-                  </Link>
-                ))}
-            </div>
-          ))}
-        </nav>
-        <div className="sidebar-sites">
-          <p className="nav-label">{t('yourSites')}</p>
-          {['TinyCanvas', 'Fieldnotes', 'OrbitKit'].map((site, i) => (
-            <Link key={site} to="/sites" className="sidebar-site">
-              <span className={`site-dot tone-${i}`} />
-              {site}
-              <span className="site-mini">↗</span>
+          {navigation.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={pathname === item.path ? 'active' : ''}
+              aria-current={pathname === item.path ? 'page' : undefined}
+              onClick={() => setOpen(false)}
+            >
+              {t(item.label)}
             </Link>
           ))}
-        </div>
-        <div className="sidebar-bottom">
-          <div className="small-sail">
-            <BrandMark />
-          </div>
-          <p>{t('footer')}</p>
-          <a
-            href="https://github.com/zevships/siteaboard"
-            target="_blank"
-            rel="noreferrer"
-            className="github-link"
-          >
-            <Icon name="github" size={16} />
-            {t('github')}
-            <Icon name="arrow" size={14} />
-          </a>
-        </div>
-      </aside>
-      <div className="main-column" inert={open ? true : undefined}>
-        <header className="topbar">
-          <div className="breadcrumb">
-            <button
-              ref={menuButton}
-              className="icon-button mobile-only"
-              aria-label={t('openMenu')}
-              aria-expanded={open}
-              onClick={() => setOpen(true)}
-            >
-              <Icon name="menu" />
-            </button>
-            <span className="breadcrumb-parent">{t('workspace')}</span>
-            <Icon name="chevron" size={13} />
-            <strong>{active ? t(active.label) : 'SiteAboard'}</strong>
-          </div>
-          <PreferenceControls />
-        </header>
+        </nav>
+        <PreferenceControls />
+      </header>
+      <div className="main-column">
         <main id="main-content" tabIndex={-1}>
-          <div className="demo-banner">
-            <span className="demo-pill">
-              <span className="status-dot" />
-              {t('demo')}
-            </span>
-            <span>{t('demoNote')}</span>
-          </div>
           <Outlet />
         </main>
         <footer className="footer">
           <span>
-            SiteAboard <span className="footer-separator">/</span> {t('localFirst')}
+            {t('demoData')} · {t('demoNote')}
           </span>
-          <span>{t('version')}</span>
+          <a href="https://github.com/zevships/siteaboard" target="_blank" rel="noreferrer">
+            GitHub <span aria-hidden="true">↗</span>
+          </a>
         </footer>
       </div>
     </div>

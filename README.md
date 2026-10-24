@@ -19,7 +19,7 @@ This first release is a **static frontend foundation with fictional data**:
 - Three color themes (Ocean, Harbor, Sunset), light/dark/system appearance, and
   English/Simplified Chinese. Preferences stay in your browser.
 - Responsive navigation, keyboard controls, an accessible chart data table, and
-  working 7/30-day demo views.
+  working 7/30-day demo views, per-site operational summaries, and a site-detail journey.
 - GitHub Pages deployment and automated type, contract, publication, and browser checks.
 
 The local database, real data connectors, tracking receiver, CLI, and agent skills are
@@ -50,7 +50,7 @@ pnpm build
 pnpm preview
 ```
 
-Browser tests build and preview at `/siteaboard/`, including mobile navigation,
+Browser tests cover desktop, tablet, and mobile. They build and preview at `/siteaboard/`, including mobile navigation,
 language/theme persistence, deep-link refresh, and unavailable browser storage.
 Screenshots and traces are written to ignored `.local/`.
 
