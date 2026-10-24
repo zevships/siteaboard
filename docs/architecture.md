@@ -1,6 +1,6 @@
 # SiteAboard 整体架构
 
-状态：2026-10-24。已实现独立静态前端、合成演示、主题与中英文；以下本地服务、CLI、存储和连接器为目标架构，尚未实现。采用独立本地应用，UI、CLI 和 skills 共用一个业务核心。第一阶段验证可运行闭环，再增加外部集成；不依赖特定 agent 宿主。
+状态：2026-10-24。已实现独立前端、七个站点模块、合成演示、主题与中英文，以及只读 SQLite 快照服务（见 local-data.md）。以下单写者、CLI、完整存储、连接器是后续目标架构。采用独立本地应用，UI、CLI 和 skills 共用一个业务核心。第一阶段验证可运行闭环，再增加外部集成；不依赖特定 agent 宿主。
 
 ## 1. 系统边界
 
@@ -42,11 +42,11 @@ flowchart TB
 | 测试     | Node test runner + TypeScript 执行工具；浏览器冒烟                     | 保护指标语义、同步恢复、隔离与核心用户路径                                  |
 | 文档站   | 当前 Markdown + GitHub Pages 静态演示                                  | 文档生成框架到文档阶段再决定                                                |
 
-前端依赖已锁定版本并提交 lockfile，从空项目安装，不复制旧 lockfile。本地服务依赖在 M1 验证后加入。SQLite 驱动隔离在 `core/storage`，避免把特定 Node API 散布到业务代码；查询规模增长后按测量结果决定是否移入 worker。
+前端依赖已锁定版本并提交 lockfile，从空项目安装，不复制旧 lockfile。本地服务依赖在 M1 验证后加入。目标 SQLite 驱动隔离在 `core/storage`（当前只读适配器位于 `scripts/local-db.mjs`），避免把特定 Node API 散布到业务代码；查询规模增长后按测量结果决定是否移入 worker。
 
 Python 不作为首版默认安装依赖。确有收益的既有脚本可以作为明确声明的可选连接器；普通接入和 demo 路径保持 Node 即可运行。
 
-Node SQLite 与 TanStack 的当前能力参考：[Node SQLite](https://nodejs.org/api/sqlite.html)、[TanStack Node hosting](https://tanstack.com/start/latest/docs/framework/react/guide/hosting)。当前静态前端已经完成构建与浏览器检查；本地服务构建兼容性待 M1 验证。
+Node SQLite 与 TanStack 的当前能力参考：[Node SQLite](https://nodejs.org/api/sqlite.html)、[TanStack Node hosting](https://tanstack.com/start/latest/docs/framework/react/guide/hosting)。当前静态前端已经完成构建与浏览器检查；Node 26 只读快照服务已实现；M1 的 writer、调度和 CLI 闭环仍待验证。
 
 ## 3. 模块职责与依赖
 
@@ -64,7 +64,7 @@ Node SQLite 与 TanStack 的当前能力参考：[Node SQLite](https://nodejs.or
 
 `apps/admin` 是组合入口：构造 core、注册 connectors，再挂载 UI/API。connectors 只依赖 core 公共契约；core 通过接口使用它们，不反向导入具体连接器。CLI 只共享公开 DTO/错误契约，不导入存储实现。
 
-当前根 package 管理前端工具，只有 admin 与 core 数据契约有代码；其余是职责预留目录。未来形成上述四个工作包，不为每个领域拆 npm 包。文档中的 `domain/application/storage/runtime` 是 core 内部目录，待实现时创建。
+当前根 package 管理工具；admin、core 数据契约/纯查询、scripts/local-\*.mjs 只读快照服务已有实现；其余是职责预留目录。未来形成上述四个工作包，不为每个领域拆 npm 包。文档中的 `domain/application/storage/runtime` 是 core 内部目录，待实现时创建。
 
 ## 4. 进程与安装模型
 
@@ -88,7 +88,7 @@ CLI 的 `doctor` 可离线检查环境；其余业务命令连接已启动服务
 | 运营   | issues、changes、reviews                         | 证据引用、改动时间、观察窗和复查状态；不会因重拉数据被删除 |
 | 系统   | jobs、audit_log、schema_migrations               | 幂等标识、结果和执行者类型；凭证不进入日志                 |
 
-以上是逻辑表分组，具体 DDL 在 M1/M2 按需要落地。迁移使用增量版本，不沿用“schema 变化便全库重建”的方式；重建派生统计不得删除运营记录。
+当前 SQLite 只有 `workspace_snapshot` v1，保存通过校验的工作区快照。以上是未来逻辑表分组，具体 DDL 在 M1/M2 按需要落地。迁移使用增量版本，不沿用“schema 变化便全库重建”的方式；重建派生统计不得删除运营记录。
 
 所有查询返回：`schemaVersion`、`siteId`、`source`、`period`、`timezone`、`fetchedAt`、`dataThrough`、`quality`、`definitionVersion` 和 `evidenceRefs`，以及该查询的业务数据。
 

@@ -1,81 +1,78 @@
-import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import type { Period } from '../../../../../packages/core/src/dashboard.ts';
-import { usePreferences } from '../../providers/preferences.tsx';
-import { getDemoDashboard } from '../../data/demo.ts';
-import { SiteOperations } from '../../components/dashboard/site-operations.tsx';
-import { ReviewList } from '../../components/dashboard/review-list.tsx';
-import { TaskList } from '../../components/dashboard/task-list.tsx';
-import { PeriodControl } from '../../components/dashboard/period-control.tsx';
-import { HorizonArt } from '../../components/dashboard/horizon-art.tsx';
-import { SiteTable } from '../../components/dashboard/site-table.tsx';
-
+import { useWorkspace } from '../../providers/workspace.tsx';
+import { useI18n } from '../../lib/reference-format.ts';
+import { SiteCard } from '../../components/operations/site-card.tsx';
+import { Inbox, TasksMini, getInbox } from '../../components/operations/inbox.tsx';
 export default function OverviewPage() {
-  const { t } = usePreferences();
-  const [period, setPeriod] = useState<Period>(7);
-  const [siteId, setSiteId] = useState('tinycanvas');
-  const snapshot = getDemoDashboard(period);
+  const { data, mode } = useWorkspace();
+  const { t, locale } = useI18n();
+  const first = data.sites[0];
+  const date = new Date(data.generatedAt);
+  const failed = data.tasks.filter((task) => task.status === 'failed').length;
   return (
-    <div className="home-layout">
-      <header className="day-summary">
-        <HorizonArt />
+    <div className="hm">
+      <header className="hm-hero">
         <div>
-          <p>{t('demoClock')}</p>
-          <h1>{t('overviewTitle')}</h1>
+          <p className="hm-date">
+            {new Intl.DateTimeFormat(locale, {
+              month: 'long',
+              day: 'numeric',
+              weekday: 'short',
+              timeZone: 'UTC',
+            }).format(date)}
+            <span>
+              {mode === 'demo' ? t('演示时间', 'Demo time') : t('数据快照', 'Snapshot')} ·{' '}
+              {date.toISOString().slice(11, 16)} UTC
+            </span>
+          </p>
+          <h1>{t('下午好', 'Good afternoon')}</h1>
         </div>
-        <div className="summary-links">
-          <Link to="/activity">
-            <strong className="warning">3</strong>
-            {t('itemsToReview')}
+        <div className="hm-glance">
+          <Link className="hm-g is-owner" to="/activity">
+            <b>{getInbox(data).length}</b>
+            {t('件要看', 'to review')}
           </Link>
-          <Link to="/sites">
-            <strong>3</strong>
-            {t('sitesTracked')}
+          <Link className={`hm-g${failed ? ' is-bad' : ''}`} to="/connections">
+            <b>{failed}</b>
+            {t('个任务失败了', 'failed tasks')}
           </Link>
-          <Link to="/connections">
-            <span className="status-dot" />
-            {t('demoWorkspace')}
+          <Link
+            className="hm-g"
+            to="/sites"
+            search={{ site: first?.id, tab: 'overview', period: '7d', days: 7 }}
+          >
+            <b>{data.sites.length}</b>
+            {t('个站点', 'websites')}
           </Link>
         </div>
       </header>
-      <div className="section-toolbar">
-        <div className="site-switcher" role="group" aria-label={t('yourSites')}>
-          {snapshot.sites.map((site) => (
-            <button
-              key={site.id}
-              aria-pressed={siteId === site.id}
-              onClick={() => setSiteId(site.id)}
-            >
-              {site.name}
-            </button>
+      <div className="hm-scope-note">
+        <span>
+          <i />
+          {mode === 'demo'
+            ? t('演示工作区 · 所有数据均为虚构', 'Demo workspace · All data is fictional')
+            : t(
+                '本地工作区 · 数据仅来自你的数据库',
+                'Local workspace · Data from your database only',
+              )}
+        </span>
+        <span>{t('先看数据，再做决定', 'Know your numbers. Choose your next move.')}</span>
+      </div>
+      {data.sites.length === 0 ? (
+        <section className="ad-card">
+          {t('数据库里还没有站点', 'No sites in this database yet')}
+        </section>
+      ) : (
+        <div className="hm-sites">
+          {data.sites.map((site, index) => (
+            <SiteCard key={site.id} site={site} index={index} />
           ))}
         </div>
-        <PeriodControl value={period} onChange={setPeriod} />
+      )}
+      <div className="hm-cols">
+        <Inbox data={data} />
+        <TasksMini data={data} />
       </div>
-      <SiteOperations siteId={siteId} period={period} />
-      <div className="work-columns">
-        <section className="panel inbox-panel">
-          <div className="panel-heading">
-            <h2>
-              {t('toReview')} <span className="count-badge">3</span>
-            </h2>
-            <Link className="text-link" to="/activity">
-              {t('viewActivity')} →
-            </Link>
-          </div>
-          <ReviewList />
-        </section>
-        <TaskList />
-      </div>
-      <section className="panel portfolio-panel">
-        <div className="panel-heading">
-          <h2>{t('allSites')}</h2>
-          <span className="section-note">
-            {t(period === 7 ? 'days7' : 'days30')} · {t('demoData')}
-          </span>
-        </div>
-        <SiteTable sites={snapshot.sites} />
-      </section>
     </div>
   );
 }

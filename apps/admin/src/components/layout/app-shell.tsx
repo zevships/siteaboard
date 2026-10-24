@@ -1,12 +1,35 @@
-import { Link, Outlet, useLocation } from '@tanstack/react-router';
+import { Link, Outlet, useLocation, useRouterState } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
 import { navigation } from '../../app/navigation.ts';
 import { usePreferences } from '../../providers/preferences.tsx';
 import { BrandMark, Icon } from '../ui/icon.tsx';
+import { useWorkspace } from '../../providers/workspace.tsx';
+import { useI18n } from '../../lib/reference-format.ts';
 import { PreferenceControls } from './preference-controls.tsx';
+
+function Progress() {
+  const pending = useRouterState({ select: (s) => s.status === 'pending' });
+  const [phase, setPhase] = useState('idle');
+  useEffect(() => {
+    if (pending) {
+      const timer = setTimeout(() => setPhase('run'), 120);
+      return () => clearTimeout(timer);
+    }
+    setPhase((p) => (p === 'run' ? 'done' : 'idle'));
+  }, [pending]);
+  useEffect(() => {
+    if (phase === 'done') {
+      const timer = setTimeout(() => setPhase('idle'), 450);
+      return () => clearTimeout(timer);
+    }
+  }, [phase]);
+  return <div className="ad-progress" data-phase={phase} aria-hidden="true" />;
+}
 
 export function AppShell() {
   const { t } = usePreferences();
+  const { t: tr } = useI18n();
+  const { mode } = useWorkspace();
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
@@ -36,6 +59,7 @@ export function AppShell() {
   }, [open]);
   return (
     <div className="app-shell">
+      <Progress />
       <a
         className="skip-link"
         href="#main-content"
@@ -46,8 +70,8 @@ export function AppShell() {
       >
         {t('skip')}
       </a>
-      <header className="topbar">
-        <Link to="/" className="brand">
+      <header className="ad-top">
+        <Link to="/" className="ad-brand">
           <BrandMark />
           SiteAboard<span>{t('brandSubtitle')}</span>
         </Link>
@@ -64,7 +88,7 @@ export function AppShell() {
         <nav
           ref={nav}
           id="primary-navigation"
-          className={`top-nav ${open ? 'is-open' : ''}`}
+          className={`ad-top-nav ${open ? 'is-open' : ''}`}
           aria-label={t('workspace')}
         >
           <button
@@ -78,7 +102,7 @@ export function AppShell() {
             <Link
               key={item.path}
               to={item.path}
-              className={pathname === item.path ? 'active' : ''}
+              className={pathname === item.path ? 'is-on' : ''}
               aria-current={pathname === item.path ? 'page' : undefined}
               onClick={() => setOpen(false)}
             >
@@ -86,15 +110,21 @@ export function AppShell() {
             </Link>
           ))}
         </nav>
+        <span className="ad-top-space" />
         <PreferenceControls />
       </header>
       <div className="main-column">
-        <main id="main-content" tabIndex={-1}>
+        <main className="ad-main" id="main-content" tabIndex={-1}>
           <Outlet />
         </main>
         <footer className="footer">
           <span>
-            {t('demoData')} · {t('demoNote')}
+            {mode === 'demo'
+              ? `${t('demoData')} · ${t('demoNote')}`
+              : tr(
+                  '本地数据库 · 只读视图 · 数据留在本机',
+                  'Local database · Read-only view · Data stays on this machine',
+                )}
           </span>
           <a href="https://github.com/zevships/siteaboard" target="_blank" rel="noreferrer">
             GitHub <span aria-hidden="true">↗</span>

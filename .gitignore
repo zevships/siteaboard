@@ -25,3 +25,5 @@ test-results/
 .claude/launch.json
 src/paraglide/
 src/routeTree.gen.ts
+
+dist-local/

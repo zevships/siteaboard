@@ -15,7 +15,7 @@ const files = [
 ];
 const findings = [];
 const forbidden =
-  /(^|\/)(\.local|\.env(?:\..*)?|node_modules|coverage|dist|test-results|playwright-report)(\/|$)|\.(db|sqlite3?|pem|key)(-|$)/;
+  /(^|\/)(\.local|\.env(?:\..*)?|node_modules|coverage|dist|dist-local|test-results|playwright-report)(\/|$)|\.(db|sqlite3?|pem|key)(-|$)/;
 const secrets = [
   /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,
   /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{30,}\b/,
@@ -36,6 +36,11 @@ function inspect(path, publishedBuild = false) {
       if (pattern.test(text))
         findings.push(`${name}: secret or machine-path pattern (value redacted)`);
   }
+  if (
+    publishedBuild &&
+    /\/api\/workspace|node:sqlite|siteaboard_session/.test(readFileSync(path, 'utf8'))
+  )
+    findings.push(`${name}: local runtime code in public bundle`);
   if (publishedBuild && name.endsWith('.map')) findings.push(`${name}: public source map`);
 }
 for (const file of files)

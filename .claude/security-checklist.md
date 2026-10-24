@@ -15,7 +15,10 @@
 - The optional public event receiver is distinct from authenticated management/export
   endpoints. Browser identifiers are public and cannot be used as authorization.
 
-Current scope is a static frontend with synthetic fixtures and documentation. Only
-validated theme/mode/locale preferences enter localStorage. No real data API, tokens,
-tracking, or local database is present. Runtime invariants above must be tested when
-implemented; a clean publication scan is not a runtime security audit.
+Current scope has a synthetic static frontend and read-only SQLite snapshot mode.
+Only validated theme/mode/locale preferences enter localStorage. The public build
+must contain neither /api/workspace nor the local runtime. Local API reads require
+an HttpOnly SameSite=Strict session, exact loopback Host, Origin/Fetch-Metadata
+checks and no-store responses. Static paths reject traversal and symlinks. Failed
+or invalid local data must not fall back to demo data. The SQLite initializer must
+never overwrite an existing file. No live collector or database writer is shipped.

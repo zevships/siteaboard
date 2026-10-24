@@ -1,8 +1,13 @@
 # Admin frontend
 
-Working static demo in `src/`, using React, Vite, and TanStack Router. Run `pnpm dev`,
-`pnpm build`, or `pnpm preview` from the repository root. Output is `dist/` (ignored).
+React, Vite and TanStack Router, with separate demo and local data builds. Run from
+the repository root:
 
-Each route is a lazy page component. See [frontend conventions](../../docs/frontend.md)
-for page registration, translations, themes, fixtures, and verification. The Node
-service/API boundary described in the architecture is future work.
+- `pnpm dev`, `pnpm build`, `pnpm preview`: synthetic static demo, output `dist/`.
+- `pnpm build:local`: local API client, output `dist-local/`.
+- `pnpm local --db .local/workspace.sqlite`: read-only local server on loopback.
+
+Both outputs are ignored. Only `dist/` is published to GitHub Pages. Each global
+route and each site tab is an independent lazy component. See
+[frontend conventions](../../docs/frontend.md) and [local data](../../docs/local-data.md).
+Live collection, writers, business CLI and agent skills remain future work.

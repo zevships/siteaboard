@@ -1,104 +1,137 @@
+import { lazy, Suspense } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
-import type { Period } from '../../../../../packages/core/src/dashboard.ts';
-import { getDemoDashboard, getDemoSite } from '../../data/demo.ts';
-import { usePreferences } from '../../providers/preferences.tsx';
-import { PeriodControl } from '../../components/dashboard/period-control.tsx';
-import { TrafficChart } from '../../components/dashboard/traffic-chart.tsx';
-
+import { querySite, type PeriodKey } from '../../../../../packages/core/src/workspace.ts';
+import { useWorkspace } from '../../providers/workspace.tsx';
+import { useSiteText } from '../../locales/site.ts';
+import '../../styles/site-sections.css';
+const sections = {
+  overview: lazy(() => import('./sections/overview.tsx')),
+  performance: lazy(() => import('./sections/performance.tsx')),
+  feedback: lazy(() => import('./sections/feedback.tsx')),
+  returning: lazy(() => import('./sections/returning.tsx')),
+  search: lazy(() => import('./sections/search.tsx')),
+  issues: lazy(() => import('./sections/issues.tsx')),
+  releases: lazy(() => import('./sections/releases.tsx')),
+};
+type Tab = keyof typeof sections;
+const tabs = Object.keys(sections) as Tab[];
+const periods: PeriodKey[] = ['today', 'yesterday', '7d', '30d', 'month', 'all'];
 export default function SitesPage() {
-  const { t, number } = usePreferences();
-  const search = useSearch({ strict: false }) as { site?: string; days?: Period };
+  const t = useSiteText();
+  const { data, mode } = useWorkspace();
   const navigate = useNavigate();
-  const siteId = search.site ?? 'tinycanvas';
-  const period = search.days ?? 7;
-  const setSiteId = (site: string) => {
-    void navigate({ to: '/sites', search: { site, days: period } });
+  const search = useSearch({ strict: false }) as {
+    site?: string;
+    days?: number;
+    tab?: string;
+    period?: string;
   };
-  const setPeriod = (days: Period) => {
-    void navigate({ to: '/sites', search: { site: siteId, days } });
+  if (!data.sites.length)
+    return (
+      <section className="ad-card ad-empty-card">
+        <h1>{t('noSites')}</h1>
+        <p className="ad-muted">{t('missingFootnote')}</p>
+      </section>
+    );
+  const site = data.sites.find((s) => s.id === search.site) ?? data.sites[0];
+  const tab = tabs.includes(search.tab as Tab) ? (search.tab as Tab) : 'overview';
+  const period = periods.includes(search.period as PeriodKey)
+    ? (search.period as PeriodKey)
+    : search.days === 30
+      ? '30d'
+      : '7d';
+  const query = querySite(site, period);
+  const Page = sections[tab];
+  const change = (next: { site?: string; tab?: Tab; period?: PeriodKey }) => {
+    const nextPeriod = next.period ?? period;
+    void navigate({
+      to: '/sites',
+      search: {
+        site: next.site ?? site.id,
+        tab: next.tab ?? tab,
+        period: nextPeriod,
+        days: nextPeriod === '30d' ? 30 : 7,
+      },
+      resetScroll: false,
+    });
   };
-  const { site, daily } = getDemoSite(siteId, period);
-  const stages = [
-    { label: 'stageArrival', event: 'page_view', count: site.visits },
-    { label: 'stageOpen', event: 'workspace_open', count: Math.round(site.visits * 0.68) },
-    { label: 'stageStart', event: 'action_start', count: Math.round(site.visits * 0.35) },
-    { label: 'stageFinish', event: 'action_done', count: Math.round(site.visits * 0.15) },
-    { label: 'stageGoal', event: 'export_done', count: site.goals },
-  ] as const;
   return (
-    <div className="detail-layout">
-      <div className="detail-heading">
-        <h1 className="sr-only">{t('sitesTitle')}</h1>
-        <select
-          className="site-select"
-          aria-label={t('chooseSite')}
-          value={siteId}
-          onChange={(e) => setSiteId(e.target.value)}
-        >
-          {getDemoDashboard(30).sites.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.domain}
-            </option>
+    <div className="sa-site-page">
+      <h1 className="ad-sr">
+        {site.domain} · {t(tab)}
+      </h1>
+      <div className="ad-sitenav">
+        <label className="ad-site">
+          <span className="ad-sr">{t('chooseSite')}</span>
+          <select
+            aria-label={t('chooseSite')}
+            value={site.id}
+            onChange={(e) => change({ site: e.target.value })}
+          >
+            {data.sites.map((s) => (
+              <option value={s.id} key={s.id}>
+                {s.domain}
+              </option>
+            ))}
+          </select>
+        </label>
+        <nav className="ad-pages" aria-label={t('sections')}>
+          {tabs.map((key) => (
+            <button
+              type="button"
+              className={key === tab ? 'is-on' : ''}
+              aria-current={key === tab ? 'page' : undefined}
+              onClick={() => change({ tab: key })}
+              key={key}
+            >
+              {t(key)}
+            </button>
           ))}
-        </select>
-        <span className="detail-tab">{t('siteOverview')}</span>
-        <span className="section-note">{t('demoData')}</span>
+        </nav>
+        <span className="sa-source-badge">{t(mode === 'local' ? 'local' : 'demo')}</span>
       </div>
-      <div className="section-toolbar">
-        <PeriodControl value={period} onChange={setPeriod} />
-        <span className="section-note">
-          {period === 7 ? '10-24 → 10-30' : '10-01 → 10-30'} · UTC · {t('sample')}
+      <div className="ad-toolbar">
+        {tab !== 'issues' ? (
+          <nav className="ad-seg" aria-label={t('period')}>
+            {periods.map((key) => (
+              <button
+                key={key}
+                className={period === key ? 'is-on' : ''}
+                aria-pressed={period === key}
+                onClick={() => change({ period: key })}
+              >
+                {t(key)}
+              </button>
+            ))}
+          </nav>
+        ) : null}
+        <span className="ad-note">
+          {tab !== 'issues' ? `${query.from} – ${query.to} · ` : ''}
+          {t('dataThrough')}{' '}
+          <b>
+            {tab === 'issues'
+              ? site.time.fetchedAt
+              : period === 'today'
+                ? `${site.time.today} ${new Intl.DateTimeFormat('en-GB', { timeZone: site.time.timezone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(site.time.fetchedAt))}`
+                : site.time.dataThrough}
+          </b>{' '}
+          · {site.time.timezone}
         </span>
       </div>
-      <section className="panel reading-note">
-        <h2>{t('readingNotes')}</h2>
-        <ol>
-          <li>{t('readingOne')}</li>
-          <li>{t('readingTwo')}</li>
-          <li>{t('readingThree')}</li>
-        </ol>
-      </section>
-      <section className="funnel-strip" aria-label={t('funnel')}>
-        {stages.map((stage, index) => (
-          <article key={stage.event} className={index === stages.length - 1 ? 'north-star' : ''}>
-            <div className="funnel-label">
-              <span>{t(stage.label)}</span>
-              <code>{stage.event}</code>
-            </div>
-            <strong>{number(stage.count)}</strong>
-            <p>
-              {index === 0
-                ? t('startingPoint')
-                : `${t('previousStep')} ${((stage.count / stages[index - 1].count) * 100).toFixed(1)}%`}
-            </p>
-            <small>{t('sample')}</small>
-            <div className="funnel-track">
-              <span style={{ width: `${(stage.count / site.visits) * 100}%` }} />
-            </div>
-          </article>
-        ))}
-      </section>
-      <section className="panel traffic-panel">
-        <div className="panel-heading">
-          <div>
-            <h2>{t('trafficTitle')}</h2>
-            <p>
-              {site.domain} · {t('demoData')}
-            </p>
+      <Suspense
+        fallback={
+          <div className="ad-card sa-section-loading" role="status">
+            …
           </div>
-          <div className="chart-legend">
-            <span>
-              <i />
-              {t('current')}
-            </span>
-            <span className="previous">
-              <i />
-              {t('previous')}
-            </span>
-          </div>
+        }
+      >
+        <div key={`${site.id}:${tab}:${period}`} className="sa-section-enter">
+          <Page site={site} query={query} />
         </div>
-        <TrafficChart points={daily} />
-      </section>
+      </Suspense>
+      <p className="ad-footnote sa-data-footnote">
+        {site.provenance.source} · {site.provenance.definitionVersion} · {t('missingFootnote')}
+      </p>
     </div>
   );
 }

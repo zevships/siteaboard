@@ -12,20 +12,24 @@ agent act through a shared CLI and reusable skills. The source is free under MIT
 
 ## Available now
 
-This first release is a **static frontend foundation with fictional data**:
+The public demo uses **fictional data only**. The same dashboard can also read a
+versioned snapshot from a local SQLite database:
 
-- Six independently loaded pages: Overview, Sites, Search, Activity, Connections,
-  and Guides. Connections and guides preview the planned workflows.
-- Three color themes (Ocean, Harbor, Sunset), light/dark/system appearance, and
-  English/Simplified Chinese. Preferences stay in your browser.
-- Responsive navigation, keyboard controls, an accessible chart data table, and
-  working 7/30-day demo views, per-site operational summaries, and a site-detail journey.
-- GitHub Pages deployment and automated type, contract, publication, and browser checks.
+- A per-site home dashboard with hourly comparisons, previous-week charts, search,
+  issues, attention items, and task status.
+- Seven site sections: overview, performance, feedback, returning visitors, search,
+  issues, and releases. Each section is its own lazy component.
+- Six date ranges, keyboard/pointer chart tooltips and data tables, filters,
+  related issues, expandable release comparisons, task history and coverage.
+- Three color palettes, light/dark/system modes, English/Chinese, responsive
+  navigation, and reduced-motion support.
+- A read-only loopback service with an authenticated same-origin API and strict
+  snapshot validation. [Local data guide](docs/local-data.md).
 
-The local database, real data connectors, tracking receiver, CLI, and agent skills are
-**not implemented yet**. The demo cannot connect accounts or manage real sites. It
-ships no telemetry, external fonts, or AI API calls. GitHub still serves the page and
-may process normal hosting request logs under its own policies.
+Real connectors, the tracking receiver, scheduler/writer, CLI, and agent skills
+are **not implemented yet**. Task buttons simulate UI states only and are disabled
+in read-only local mode. No external service is called. The public app has no
+telemetry, external fonts, or AI calls; GitHub may retain normal hosting logs.
 
 ## Run locally
 
@@ -39,7 +43,18 @@ pnpm dev
 ```
 
 Open http://127.0.0.1:4310. No account, API key, database, or adjacent repository is
-needed. This currently runs the static demo locally, not the planned local service.
+needed. This command runs the static demo. To use your own database snapshot:
+
+```sh
+pnpm db:init --db .local/workspace.sqlite
+pnpm build:local
+pnpm local --db .local/workspace.sqlite
+```
+
+Open http://127.0.0.1:4312. Initialization refuses to overwrite existing files.
+The sample database is synthetic; replace its versioned snapshot following the
+[contract and import guide](docs/local-data.md), rather than pointing at an
+arbitrary existing database. Live collection is a later milestone.
 
 ```sh
 pnpm format:check
@@ -58,19 +73,19 @@ Screenshots and traces are written to ignored `.local/`.
 
 ```text
 apps/
-  admin/                 Working static dashboard
+  admin/                 Dashboard (demo and local data)
     src/
       app/               Routes and navigation registry
       pages/             One independent component directory per page
       components/        Shared layout, UI, and dashboard components
-      providers/         Locale and theme state
+      providers/         Locale, themes, and data boundary
       locales/           English and Simplified Chinese dictionaries
       styles/            Semantic tokens, themes, and responsive layout
       data/              Fictional demo fixtures
       lib/               Browser-safe preference utilities
   cli/                   Planned CLI boundary
 packages/
-  core/                  Browser-safe contracts; future domain/runtime/storage
+  core/                  Validated contracts and pure queries; future writer/runtime
   connectors/            Planned external source adapters
 skills/                  Planned agent workflows
 examples/                Synthetic examples only
@@ -90,8 +105,8 @@ for Pages settings and fork-specific base paths.
 
 Never commit credentials, private datasets, real account identifiers, or local
 artifacts. `pnpm check:public` checks source and built output for common leaks; it
-complements manual review and is not a complete security audit. The local backend
-and its access controls remain future work.
+complements manual review and is not a complete security audit. The local bundle
+(`apps/admin/dist-local`) is separate, ignored, and never deployed to Pages.
 
 A local dashboard cannot receive public website events while your computer is
 offline. The planned tracking path needs an existing website backend or optional

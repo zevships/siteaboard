@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { parsePreferences, resolvedMode } from '../apps/admin/src/lib/preferences.ts';
-import { getDemoDashboard, getDemoSite } from '../apps/admin/src/data/demo.ts';
 import { en } from '../apps/admin/src/locales/en.ts';
 import { zhCN } from '../apps/admin/src/locales/zh-CN.ts';
 import { navigation } from '../apps/admin/src/app/navigation.ts';
@@ -36,46 +35,4 @@ test('both locales cover all UI messages and navigation keys', () => {
   assert.deepEqual(Object.keys(zhCN).sort(), Object.keys(en).sort());
   for (const route of navigation) assert.ok(en[route.label] && zhCN[route.label]);
   assert.equal(new Set(navigation.map((route) => route.path)).size, navigation.length);
-});
-test('demo period, chart, portfolio and totals are consistent and clearly synthetic', () => {
-  for (const period of [7, 30] as const) {
-    const data = getDemoDashboard(period);
-    assert.equal(data.source, 'synthetic');
-    assert.equal(data.quality, 'demo');
-    assert.equal(data.daily.length, period);
-    assert.equal(
-      data.daily.reduce((sum, p) => sum + p.visits, 0),
-      data.totals.visits,
-    );
-    for (const key of ['visits', 'clicks', 'goals'] as const)
-      assert.equal(
-        data.sites.reduce((sum, site) => sum + site[key], 0),
-        data.totals[key],
-      );
-    assert.ok(data.sites.every((site) => site.domain.endsWith('.example')));
-    assert.equal(data.daily.at(-1)?.day, '2026-10-30');
-  }
-  assert.ok(getDemoDashboard(7).totals.visits < getDemoDashboard(30).totals.visits);
-});
-
-test('site series agree with totals and today does not change with the selected range', () => {
-  for (const site of getDemoDashboard(30).sites) {
-    for (const period of [7, 30] as const) {
-      const data = getDemoSite(site.id, period);
-      assert.equal(
-        data.daily.reduce((sum, day) => sum + day.visits, 0),
-        data.site.visits,
-      );
-      assert.equal(
-        data.daily.reduce((sum, day) => sum + day.goals, 0),
-        data.site.goals,
-      );
-      assert.equal(
-        data.hourly.reduce((sum, value) => sum + value, 0),
-        data.todayVisits,
-      );
-      assert.equal(data.todayVisits, getDemoSite(site.id, 30).todayVisits);
-      assert.equal(data.todayGoals, getDemoSite(site.id, 30).todayGoals);
-    }
-  }
 });

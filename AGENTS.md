@@ -1,8 +1,10 @@
 # SiteAboard contributor instructions
 
 Read README.md, docs/frontend.md, and docs/architecture.md before implementation.
-The working application is a static demo. The local service, database, CLI,
-connectors, and agent skills are planned. Keep implementation status accurate.
+The working application has a static synthetic demo and a read-only local SQLite
+snapshot mode. Live connectors, the writer/scheduler, CLI and agent skills are
+planned. Keep implementation status accurate. Read docs/local-data.md for the
+implemented local boundary; never mix its bundle with the public demo.
 
 ## Work and verification
 
@@ -28,9 +30,9 @@ connectors, and agent skills are planned. Keep implementation status accurate.
   Add its navigation metadata in `app/navigation.ts` and lazy import in `app/router.tsx`.
 - Shared visual components receive data through props. Route/page components compose
   them. Keep metric definitions outside React, in `packages/core`.
-- Public demo data belongs in `apps/admin/src/data/demo.ts`; never load private files.
+- Public demo data belongs in `apps/admin/src/data/workspace.ts`; never load private files.
   Fixtures must be visibly fictional and consistent across summaries and tables.
-- Add user-facing copy to both `locales/en.ts` and `locales/zh-CN.ts`. Format dates and
+- Keep all copy bilingual: shared dictionary keys in `locales/en.ts` and `locales/zh-CN.ts`, site keys in `locales/site.ts`, or explicit Chinese/English pairs via `useI18n`. Format dates and
   numbers with the active locale. Reuse semantic CSS tokens for every theme and mode.
 - Keep hash routing and the configurable Vite base working on GitHub Pages subpaths.
 - Browser persistence holds only validated theme/mode/locale preferences; it must
@@ -45,7 +47,7 @@ connectors, and agent skills are planned. Keep implementation status accurate.
 - Keep credentials, raw responses, screenshots, and user data out of Git and client
   bundles. Never send personal identifiers to external services without authorization
   for that particular send. Never log credentials, including during debugging.
-- The planned local runtime is the sole database writer. UI, CLI, and skills share
+- The current local runtime is read-only; future writes must use one coordinated writer. UI, CLI, and skills share
   core use cases. Connectors return normalized batches and never write the database.
 - Preserve source, timezone, quality, and metric definition versions. Missing data is
   not zero; visits, visitors, events, and search clicks are distinct measures.

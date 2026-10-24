@@ -61,12 +61,26 @@ const routes = navigation.map((item) => {
     validateSearch: (search: Record<string, unknown>) =>
       item.path === '/sites'
         ? {
-            site:
-              typeof search.site === 'string' &&
-              ['tinycanvas', 'fieldnotes', 'orbitkit'].includes(search.site)
-                ? search.site
-                : 'tinycanvas',
+            site: typeof search.site === 'string' ? search.site : 'tinycanvas',
             days: search.days === 30 || search.days === '30' ? 30 : 7,
+            tab: [
+              'overview',
+              'performance',
+              'feedback',
+              'returning',
+              'search',
+              'issues',
+              'releases',
+            ].includes(String(search.tab))
+              ? String(search.tab)
+              : 'overview',
+            period: ['today', 'yesterday', '7d', '30d', 'month', 'all'].includes(
+              String(search.period),
+            )
+              ? String(search.period)
+              : search.days === 30 || search.days === '30'
+                ? '30d'
+                : '7d',
           }
         : {},
     component: () => (

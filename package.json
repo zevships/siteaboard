@@ -19,7 +19,10 @@
     "check:public": "node scripts/check-public.mjs",
     "check": "pnpm typecheck && pnpm test && pnpm build && pnpm check:public",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "build:local": "SITEABOARD_DATA_SOURCE=local vite build --config apps/admin/vite.config.ts",
+    "db:init": "node scripts/local-db.mjs init",
+    "local": "node scripts/local-server.mjs"
   },
   "dependencies": {
     "@tanstack/react-router": "1.170.11",
