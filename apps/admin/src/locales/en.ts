@@ -37,6 +37,7 @@ export const en = {
   previousStep: 'of previous step',
   overview: 'Home',
   sites: 'Sites',
+  content: 'Content',
   search: 'Search',
   activity: 'Improvements',
   connections: 'Connections',

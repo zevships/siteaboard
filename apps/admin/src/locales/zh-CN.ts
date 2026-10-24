@@ -38,6 +38,7 @@ export const zhCN: Messages = {
   previousStep: '上一步的',
   overview: '首页',
   sites: '站点',
+  content: '内容运营',
   search: '搜索',
   activity: '改进',
   connections: '连接',

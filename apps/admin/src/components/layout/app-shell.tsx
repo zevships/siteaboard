@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation, useRouterState } from '@tanstack/react-router';
 import { useEffect, useRef, useState } from 'react';
-import { navigation } from '../../app/navigation.ts';
+import { navigation, pageRoutes } from '../../app/navigation.ts';
 import { usePreferences } from '../../providers/preferences.tsx';
 import { BrandMark, Icon } from '../ui/icon.tsx';
 import { useWorkspace } from '../../providers/workspace.tsx';
@@ -35,7 +35,7 @@ export function AppShell() {
   const menuButton = useRef<HTMLButtonElement>(null);
   const nav = useRef<HTMLElement>(null);
   const restoreFocus = useRef(false);
-  const active = navigation.find((item) => item.path === pathname);
+  const active = pageRoutes.find((item) => item.path === pathname);
   useEffect(() => {
     document.title = `${active ? t(active.label) : 'SiteAboard'} · SiteAboard`;
   }, [active, t]);
@@ -71,7 +71,13 @@ export function AppShell() {
         {t('skip')}
       </a>
       <header className="ad-top">
-        <Link to="/" className="ad-brand">
+        <Link
+          to="/"
+          className="ad-brand"
+          aria-label={`SiteAboard · ${t('overview')}`}
+          title={t('overview')}
+          aria-current={pathname === '/' ? 'page' : undefined}
+        >
           <BrandMark />
           SiteAboard<span>{t('brandSubtitle')}</span>
         </Link>

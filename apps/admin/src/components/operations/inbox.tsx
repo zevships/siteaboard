@@ -76,7 +76,7 @@ export function Inbox({ data }: { data: WorkspaceDataset }) {
             <li key={i.id} data-kind={i.kind === 'decision' ? 'decide' : i.kind}>
               <Link
                 className="hm-todo"
-                to={i.kind === 'task' ? '/connections' : '/sites'}
+                to={i.kind === 'task' ? '/tasks' : '/sites'}
                 search={
                   i.kind === 'task' ? {} : { site: i.site, tab: 'issues', period: '7d', days: 7 }
                 }
@@ -114,7 +114,7 @@ export function TasksMini({ data }: { data: WorkspaceDataset }) {
     <section className="hm-card hm-tasks">
       <header className="hm-card-head">
         <h2>{t('任务', 'Tasks')}</h2>
-        <Link className="hm-more" to="/connections">
+        <Link className="hm-more" to="/tasks">
           {t('打开', 'Open')} →
         </Link>
       </header>
@@ -131,7 +131,7 @@ export function TasksMini({ data }: { data: WorkspaceDataset }) {
               task.status === 'success' ? 'ok' : task.status === 'paused' ? 'off' : task.status
             }
           >
-            <Link to="/connections">
+            <Link to="/tasks">
               <i className="hm-dot" />
               <span className="hm-task-name">{locale === 'en' ? task.name.en : task.name.zh}</span>
               <span className="hm-task-when">{task.lastRun.slice(11, 16)}</span>

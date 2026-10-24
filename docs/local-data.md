@@ -148,3 +148,11 @@ API behavior, Host/Origin/Fetch Metadata/session checks, malformed cookies, path
 traversal, symlinks, and failure without demo fallback. Browser tests separately
 check the rendered local UI. Fixture tests prove consistency, not the accuracy of a
 third-party producer: each adapter must verify its own measurement semantics.
+
+## 内容运营快照
+
+`WorkspaceDataset` v1 新增可选 `content` 字段，契约在
+`packages/core/src/content.ts`：分类、创作者、帖子、知识实体、账号摘要及采集费用。
+旧快照省略该字段仍可读取，内容运营页明确显示尚无内容数据；字段存在时严格
+校验结构、时间、数值和关联 ID。当前展示内置图形预览，不接受远程媒体 URL。
+公开演示的收藏、标记和录入仅驻留页面内存，本地模式禁用这些写操作，不修改 SQLite。

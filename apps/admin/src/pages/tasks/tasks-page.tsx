@@ -108,7 +108,7 @@ function TaskCard({
     </article>
   );
 }
-export default function ConnectionsPage() {
+export default function TasksPage() {
   const { data, mode } = useWorkspace();
   const { t, locale } = useI18n();
   const text = (v: LocalizedText) => (locale === 'en' ? v.en : v.zh);
@@ -132,8 +132,10 @@ export default function ConnectionsPage() {
     <div className="tk">
       <header className="tk-hero">
         <div className="tk-hero-text">
-          <p className="hm-date">{t('让数据持续到达', 'Keep your data arriving')}</p>
-          <h1>{t('连接与任务', 'Connections and tasks')}</h1>
+          <p className="hm-date">
+            {t('采集、同步与检查，统一看运行情况', 'Collection, sync and checks — in one place')}
+          </p>
+          <h1>{t('任务', 'Tasks')}</h1>
           <p className="tk-state">
             <i className="tk-dot" />
             {mode === 'demo'

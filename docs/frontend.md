@@ -8,13 +8,21 @@ synthetic demo; the separate local build reads a read-only SQLite snapshot throu
 
 - Global pages each have a directory in `apps/admin/src/pages`, registered in
   `app/navigation.ts` and lazy loaded from `app/router.tsx`.
+- Home is the brand link. Top-level navigation is Sites, Content, Improvements, Tasks,
+  Playbooks. The old `/connections` bookmark redirects to `/tasks`; `/search` redirects
+  to the first site’s search section.
+- Content lives in `pages/content`, with scoped `styles/content.css` and an optional
+  validated `WorkspaceDataset.content`. No content in a local snapshot means an
+  empty view, never demo fallback. Demo save/intake state is in-memory and resets
+  on page remount; filtering is currently page-local rather than URL-persisted.
 - Site tabs live in `pages/sites/sections`: overview, performance, feedback,
   returning, search, issues and releases. Site/tab/period stay in the URL.
 - Shared charts live in `components/reference`, homepage groups in
   `components/operations`. Shared components accept props; pages consume
   `useWorkspace`. Never import fixtures inside view components.
 - `packages/core/src/workspace.ts` defines and validates DTOs, adjacent comparison
-  windows and null-preserving queries. Public fixtures live in `data/workspace.ts`.
+  windows and null-preserving queries. Public fixtures live in `data/workspace.ts` and `data/content.ts`.
+  The content contract and cross-reference validator live in `core/src/content.ts`.
 - Missing metrics remain unavailable. Visitor-days, sessions, events and search
   clicks stay distinct. Aggregate event stages do not establish ordered conversion.
 
@@ -22,7 +30,7 @@ synthetic demo; the separate local build reads a read-only SQLite snapshot throu
 
 `reference.css` preserves the compact operational geometry, neutral surfaces,
 chart colors, keyboard tooltips, hover behavior, chart growth and status animations.
-`polish.css` adds palette accents and surface refinement without changing density.
+`polish.css` adds palette accents and surface refinement, a subtle contour motif, and cool dark surfaces without changing density.
 `site-sections.css` contains page-specific extensions. Do not copy decorative
 marketing layouts into the dashboard or introduce a permanent sidebar.
 

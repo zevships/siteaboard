@@ -1,0 +1,121 @@
+import type { ContentDataset, ContentPost } from '../../../../packages/core/src/content.ts';
+const pair = (zh: string, en: string) => ({ zh, en });
+const names = [
+  'Pixel Harbor',
+  'Maple Circuit',
+  'Cloud Sketch',
+  'Orbit Studio',
+  'Moss & Code',
+  'Amber Frame',
+  'Quiet Kernel',
+  'Coral Foundry',
+  'Paper Comet',
+  'Indigo Tools',
+  'Fern Assembly',
+  'Copper Atlas',
+];
+const categories = [
+  { id: 'design', label: pair('设计 · UI · 交互', 'Design · UI · interaction'), color: '#31aa75' },
+  { id: 'tools', label: pair('工具 · 开源项目', 'Tools · open source'), color: '#e47831' },
+  { id: 'growth', label: pair('出海 · 增长 · SEO', 'Global growth · SEO'), color: '#978d00' },
+  {
+    id: 'creative',
+    label: pair('视觉 · 动画 · 创作', 'Visuals · motion · making'),
+    color: '#9a73dc',
+  },
+  { id: 'workflow', label: pair('教程 · 工作流', 'Tutorials · workflows'), color: '#00a5a1' },
+  { id: 'build', label: pair('独立开发 · 产品', 'Indie development · products'), color: '#d2699a' },
+];
+const titles = [
+  pair('让终端成为一张小画布', 'A small canvas inside a terminal'),
+  pair('用几何搭建一座安静的小岛', 'Building a quiet island from geometry'),
+  pair('三个形状，一个好记的品牌', 'Three shapes, one memorable brand'),
+  pair('从草稿到可用的编辑器', 'From sketch to a usable editor'),
+  pair('指标少一点，行动更清楚', 'Fewer metrics, clearer next actions'),
+  pair('给独立产品留一点呼吸感', 'Room to breathe for an indie product'),
+];
+export const demoContent: ContentDataset = {
+  schemaVersion: 1,
+  collectedAt: '2026-10-24T17:25:00Z',
+  costs: { todayUsd: 0.34, monthUsd: 3.32, dailyUsd: [0.12, 0.06, 0.09, 0.22, 0.08, 0.04, 0.34] },
+  categories,
+  creators: names.map((name, i) => ({
+    id: `creator-${i + 1}`,
+    name,
+    handle: `demo_${name.toLowerCase().replaceAll(/[^a-z]/g, '')}`,
+    platform: ['X', 'Newsletter', 'YouTube', 'Community'][i % 4]!,
+    categoryId: categories[i % 6]!.id,
+    topic: i % 3 === 0 ? 'learning' : 'makers',
+    bio: pair(
+      '虚构的创作者档案：记录设计、独立产品与持续学习。',
+      'Fictional creator profile: design, indie products and learning in public.',
+    ),
+    hue: (i * 31 + 25) % 360,
+    followers: i === 5 ? null : 840 + i * 371,
+  })),
+  posts: Array.from(
+    { length: 36 },
+    (_, i): ContentPost => ({
+      id: `post-${i + 1}`,
+      creatorId: `creator-${(i % 12) + 1}`,
+      date: `2026-10-${24 - Math.floor(i / 12)}T${String(17 - (i % 12)).padStart(2, '0')}:20:00Z`,
+      title: titles[i % 6]!,
+      body: pair(
+        '这是完全合成的演示帖子，用来展示内容采集后的阅读与整理体验。把一个小问题拆成可测试的步骤，记录过程，再把有效的方法放回自己的工作流。没有连接真实账号，也不会发送或发布内容。',
+        'This entirely synthetic post demonstrates reading and organizing collected content. Break a small problem into testable steps, record the process, then keep the useful method in your workflow. No real account is connected and nothing is sent or published.',
+      ),
+      categoryId: categories[i % 6]!.id,
+      art: (['terminal', 'landscape', 'shapes', 'editor', 'dashboard', 'type'] as const)[i % 6]!,
+      durationSeconds: i % 3 === 0 ? 24 + i : null,
+      likes: i === 7 ? null : 42 + i * 17,
+      saved: i % 5 === 0,
+      entityIds: [`entity-${(i % 6) + 1}`],
+    }),
+  ),
+  entities: titles.map((_, i) => ({
+    id: `entity-${i + 1}`,
+    name: [
+      'Canvas notes',
+      'Island kit',
+      'Shape system',
+      'Editor patterns',
+      'Metric garden',
+      'Type study',
+    ][i]!,
+    kind: ['Technique', 'Tool', 'Design system'][i % 3]!,
+    summary: pair(
+      '演示知识实体：把相关帖子、工具和可复用方法放在一起，便于之后查找。',
+      'Demo knowledge entity: related posts, tools and reusable methods kept together for later discovery.',
+    ),
+    relatedIds: [`entity-${((i + 1) % 6) + 1}`],
+  })),
+  accounts: [
+    {
+      id: 'account-x',
+      name: 'TinyCanvas demo',
+      platform: 'X',
+      handle: 'demo_tinycanvas',
+      posts: 3,
+      views: 1240,
+      nextAction: pair('核对本周三篇演示帖的读数', 'Review readings for three sample posts'),
+    },
+    {
+      id: 'account-news',
+      name: 'Fieldnotes demo',
+      platform: 'Newsletter',
+      handle: 'demo_fieldnotes',
+      posts: 1,
+      views: null,
+      nextAction: pair('邮件阅读数据尚未提供', 'Newsletter readings are unavailable'),
+    },
+    {
+      id: 'account-video',
+      name: 'OrbitKit demo',
+      platform: 'YouTube',
+      handle: 'demo_orbitkit',
+      posts: 0,
+      views: null,
+      nextAction: pair('整理下一期教程大纲', 'Prepare the next tutorial outline'),
+    },
+  ],
+};

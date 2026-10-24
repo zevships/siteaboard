@@ -88,7 +88,7 @@ CLI 的 `doctor` 可离线检查环境；其余业务命令连接已启动服务
 | 运营   | issues、changes、reviews                         | 证据引用、改动时间、观察窗和复查状态；不会因重拉数据被删除 |
 | 系统   | jobs、audit_log、schema_migrations               | 幂等标识、结果和执行者类型；凭证不进入日志                 |
 
-当前 SQLite 只有 `workspace_snapshot` v1，保存通过校验的工作区快照。以上是未来逻辑表分组，具体 DDL 在 M1/M2 按需要落地。迁移使用增量版本，不沿用“schema 变化便全库重建”的方式；重建派生统计不得删除运营记录。
+当前 SQLite 只有 `workspace_snapshot` v1，保存通过校验的工作区快照。可选 `content` 字段承载内容运营的创作者、帖子、实体与账号摘要；省略时显示空态，不回退演示数据。以上是未来逻辑表分组，具体 DDL 在 M1/M2 按需要落地。迁移使用增量版本，不沿用“schema 变化便全库重建”的方式；重建派生统计不得删除运营记录。
 
 所有查询返回：`schemaVersion`、`siteId`、`source`、`period`、`timezone`、`fetchedAt`、`dataThrough`、`quality`、`definitionVersion` 和 `evidenceRefs`，以及该查询的业务数据。
 

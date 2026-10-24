@@ -1,5 +1,9 @@
 /* A thin refinement layer: keep the reference's layout and semantic chart colors. */
 :root {
+  --ad-plane: #f4f6fb;
+  --ad-surface: #fdfdff;
+  --ad-grid: #e1e5ee;
+  --ad-ring: rgba(37, 51, 87, 0.12);
   --brand-accent: #5273d8;
   --brand-wash: rgba(82, 115, 216, 0.08);
   --bg: var(--ad-plane);
@@ -18,6 +22,12 @@
   --brand-wash: rgba(200, 117, 70, 0.09);
 }
 :root[data-mode='dark'] {
+  --ad-plane: #10141e;
+  --ad-surface: #191f2b;
+  --ad-grid: #2d3544;
+  --ad-ring: rgba(181, 198, 232, 0.14);
+  --ad-ink-2: #c4ccdb;
+  --ad-muted: #a0abc0;
   --brand-accent: #97afff;
   --brand-wash: rgba(151, 175, 255, 0.08);
 }
@@ -30,7 +40,7 @@
   --brand-wash: rgba(237, 177, 139, 0.09);
 }
 body {
-  background: var(--ad-plane);
+  background: radial-gradient(ellipse at 0 0, var(--brand-wash), transparent 50%), var(--ad-plane);
 }
 .ad-top {
   background: color-mix(in srgb, var(--ad-surface) 95%, var(--brand-wash));
@@ -194,4 +204,67 @@ body {
 button:disabled {
   cursor: default;
   opacity: 0.5;
+}
+/* The brand doubles as Home without consuming a separate navigation item. */
+.ad-brand[aria-current='page'] > svg {
+  box-shadow: 0 0 0 3px var(--brand-wash);
+  border-radius: 7px;
+}
+
+/* Refine the workspace without altering the reference's reading order or geometry. */
+.ad-top {
+  position: relative;
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--brand-accent) 4%, transparent);
+}
+.ad-top::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  bottom: -1px;
+  left: var(--ad-gutter);
+  right: var(--ad-gutter);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--brand-accent) 38%, transparent),
+    transparent
+  );
+}
+.ad-top-nav a.is-on {
+  background: var(--brand-wash);
+}
+.hm,
+.tk {
+  --ui-card: var(--ad-surface);
+  --ui-inset: color-mix(in srgb, var(--ad-plane) 65%, var(--ad-surface));
+  --ui-shadow:
+    0 2px 4px color-mix(in srgb, var(--brand-accent) 3%, transparent),
+    0 10px 30px color-mix(in srgb, var(--brand-accent) 5%, transparent);
+}
+.hm-hero::before {
+  opacity: 1;
+  background:
+    radial-gradient(
+      ellipse at 70% -15%,
+      color-mix(in srgb, var(--brand-accent) 18%, transparent),
+      transparent 50%
+    ),
+    repeating-radial-gradient(
+      ellipse at 95% 160%,
+      transparent 0 34px,
+      color-mix(in srgb, var(--brand-accent) 9%, transparent) 35px 36px,
+      transparent 37px 70px
+    );
+  mask-image: linear-gradient(90deg, transparent 20%, black);
+}
+.hm-site-icon {
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--brand-accent) 16%, transparent);
+}
+.hm-g {
+  background: color-mix(in srgb, var(--ad-surface) 76%, transparent);
+}
+.hm-site-nav a:hover {
+  background: var(--brand-wash);
+  color: var(--brand-accent);
 }

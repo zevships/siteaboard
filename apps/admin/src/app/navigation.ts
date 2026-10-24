@@ -1,12 +1,12 @@
 import type { MessageKey } from '../locales/en.ts';
 import type { IconName } from '../components/ui/icon.tsx';
 
+// Home is the brand link; search belongs to the selected site's navigation.
 export const navigation = [
-  { path: '/', label: 'overview', icon: 'overview', group: 'workspace' },
   { path: '/sites', label: 'sites', icon: 'sites', group: 'workspace' },
-  { path: '/search', label: 'search', icon: 'search', group: 'workspace' },
+  { path: '/content', label: 'content', icon: 'globe', group: 'workspace' },
   { path: '/activity', label: 'activity', icon: 'activity', group: 'tools' },
-  { path: '/connections', label: 'connections', icon: 'connections', group: 'tools' },
+  { path: '/tasks', label: 'tasks', icon: 'connections', group: 'tools' },
   { path: '/guides', label: 'guides', icon: 'guides', group: 'tools' },
 ] as const satisfies readonly {
   path: string;
@@ -14,4 +14,8 @@ export const navigation = [
   icon: IconName;
   group: MessageKey;
 }[];
-export type PagePath = (typeof navigation)[number]['path'];
+export const pageRoutes = [
+  { path: '/', label: 'overview', icon: 'overview', group: 'workspace' },
+  ...navigation,
+] as const;
+export type PagePath = (typeof pageRoutes)[number]['path'];

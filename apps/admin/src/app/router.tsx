@@ -3,18 +3,21 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  Navigate,
 } from '@tanstack/react-router';
 import { lazy, Suspense, type ComponentType } from 'react';
 import { AppShell } from '../components/layout/app-shell.tsx';
 import { usePreferences } from '../providers/preferences.tsx';
-import { navigation, type PagePath } from './navigation.ts';
+import { pageRoutes, type PagePath } from './navigation.ts';
+
+import { useWorkspace } from '../providers/workspace.tsx';
 
 const pages: Record<PagePath, ComponentType> = {
   '/': lazy(() => import('../pages/overview/overview-page.tsx')),
   '/sites': lazy(() => import('../pages/sites/sites-page.tsx')),
-  '/search': lazy(() => import('../pages/search/search-page.tsx')),
+  '/content': lazy(() => import('../pages/content/content-page.tsx')),
   '/activity': lazy(() => import('../pages/activity/activity-page.tsx')),
-  '/connections': lazy(() => import('../pages/connections/connections-page.tsx')),
+  '/tasks': lazy(() => import('../pages/tasks/tasks-page.tsx')),
   '/guides': lazy(() => import('../pages/guides/guides-page.tsx')),
 };
 function Loading() {
@@ -53,7 +56,7 @@ const root = createRootRoute({
   notFoundComponent: NotFound,
   errorComponent: ErrorPage,
 });
-const routes = navigation.map((item) => {
+const routes = pageRoutes.map((item) => {
   const Page = pages[item.path];
   return createRoute({
     getParentRoute: () => root,
@@ -90,8 +93,26 @@ const routes = navigation.map((item) => {
     ),
   });
 });
+function LegacySearch() {
+  const { data } = useWorkspace();
+  return (
+    <Navigate
+      to="/sites"
+      search={{ site: data.sites[0]?.id, tab: 'search', period: '7d', days: 7 }}
+      replace
+    />
+  );
+}
+const aliases = [
+  createRoute({
+    getParentRoute: () => root,
+    path: '/connections',
+    component: () => <Navigate to="/tasks" replace />,
+  }),
+  createRoute({ getParentRoute: () => root, path: '/search', component: LegacySearch }),
+];
 export const router = createRouter({
-  routeTree: root.addChildren(routes),
+  routeTree: root.addChildren([...routes, ...aliases]),
   history: createHashHistory(),
   defaultPreload: 'intent',
 });

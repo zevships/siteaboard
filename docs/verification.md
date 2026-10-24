@@ -21,6 +21,30 @@ independent pixel-perfect comparison against the full original React application
 Original screenshots and source-comparison artifacts stay in ignored local storage.
 
 The new application intentionally keeps the website-operations scope. Personal,
-social, lab, devices and film modules are excluded. Market-research/SERP extensions,
+lab, devices and film modules are excluded. Content operations now has a synthetic
+UI and an optional read-only snapshot; live social collection/publishing is excluded. Market-research/SERP extensions,
 live collectors and write operations are not claimed as implemented. Demo task
 animation does not run a real job; local mode is read-only.
+
+## Navigation and content workspace refinement
+
+The brand is now the only Home entry. The visible top-level navigation contains
+Sites, Content, Improvements, Tasks and Playbooks. Old Connections and global
+Search bookmarks redirect to Tasks and the first site's Search section.
+
+Content preserves the reference's vertical hierarchy: title/cost strip, accounts,
+three primary tabs, intake, topic/category/platform facets, creator strip, view
+controls and media. Artwork, identities, posts and account readings are synthetic.
+The theme layer adds cool surfaces and subtle contour texture without changing
+home chart heights or card geometry. Independent source and desktop light/dark
+review caught and corrected roster sorting, unstable artwork seeds, saved-card
+presentation and mobile filter focus handling.
+
+This is a faithful structural adaptation, not a claim that every old feature has
+been copied: the profile uses a modal; feed cards use a responsive grid; country,
+research-state and time facets, per-post translation toggles and the account's
+per-day chart are not present. Content filters reset on page remount. Live social
+collection, publishing and database writes remain unimplemented. Demo saves and
+intake drafts exist only in page memory. Optional content data in local snapshots
+is validated and displayed read-only; an absent field produces an explicit empty
+state rather than demo content.

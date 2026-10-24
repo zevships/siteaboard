@@ -32,7 +32,7 @@ export default function OverviewPage() {
             <b>{getInbox(data).length}</b>
             {t('件要看', 'to review')}
           </Link>
-          <Link className={`hm-g${failed ? ' is-bad' : ''}`} to="/connections">
+          <Link className={`hm-g${failed ? ' is-bad' : ''}`} to="/tasks">
             <b>{failed}</b>
             {t('个任务失败了', 'failed tasks')}
           </Link>

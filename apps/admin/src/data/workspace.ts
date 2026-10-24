@@ -1,3 +1,4 @@
+import { demoContent } from './content.ts';
 import { shiftDate } from '../../../../packages/core/src/workspace.ts';
 import type {
   Count,
@@ -392,6 +393,7 @@ function createSite(
   };
 }
 export const demoWorkspace: WorkspaceDataset = {
+  content: demoContent,
   schemaVersion: 1,
   generatedAt,
   source: 'synthetic',

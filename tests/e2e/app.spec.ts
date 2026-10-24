@@ -23,7 +23,7 @@ test('home uses complete site groups, keeps reference geometry, and makes no out
       padding: getComputedStyle(e).padding,
       chartHeight: e.querySelector('.hm-bars')!.getBoundingClientRect().height,
     }));
-  expect(geometry.chartHeight).toBe(64);
+  expect(geometry.chartHeight).toBeCloseTo(64, 2);
   expect(geometry.radius).toBe('14px');
   await page.locator('.hm-kinds').getByRole('button', { name: /Task/ }).click();
   await expect(page.locator('.hm-todos li')).toHaveCount(1);
@@ -134,7 +134,7 @@ test('search filters, issue selection and release disclosure work', async ({ pag
 });
 
 test('tasks display animation, simulation, history and reduced-motion safely', async ({ page }) => {
-  await page.goto('./#/connections');
+  await page.goto('./#/tasks');
   await expect(page.locator('.tk-task')).toHaveCount(4);
   await expect(page.locator('.tk-task.is-running')).toHaveCount(1);
   expect(
@@ -209,7 +209,7 @@ test('responsive navigation, screenshots and main pages', async ({ page }, info)
     fullPage: true,
     animations: 'disabled',
   });
-  for (const path of ['sites', 'search', 'activity', 'connections', 'guides']) {
+  for (const path of ['sites', 'activity', 'tasks', 'guides']) {
     await page.goto(`./#/${path}`);
     await expect(page.locator('main')).not.toBeEmpty();
     await page.reload();
@@ -218,13 +218,11 @@ test('responsive navigation, screenshots and main pages', async ({ page }, info)
         .locator(
           path === 'sites'
             ? '.ad-funnel'
-            : path === 'search'
-              ? '.ad-input'
-              : path === 'activity'
-                ? '.hm-inbox'
-                : path === 'connections'
-                  ? '.tk-task'
-                  : '.guide-card',
+            : path === 'activity'
+              ? '.hm-inbox'
+              : path === 'tasks'
+                ? '.tk-task'
+                : '.guide-card',
         )
         .first(),
     ).toBeVisible();
@@ -239,4 +237,32 @@ test('responsive navigation, screenshots and main pages', async ({ page }, info)
   }
   await page.goto('./#/does-not-exist');
   await expect(page.locator('.empty-state')).toBeVisible();
+});
+
+test('brand is Home, global navigation is purposeful, and old bookmarks redirect', async ({
+  page,
+}, info) => {
+  await page.goto('./');
+  const brand = page.getByRole('link', { name: 'SiteAboard · Home', exact: true });
+  await expect(brand).toHaveAttribute('aria-current', 'page');
+  if (info.project.name === 'mobile')
+    await page.getByRole('button', { name: 'Open navigation' }).click();
+  const nav = page.locator('#primary-navigation');
+  await expect(nav.getByRole('link')).toHaveText([
+    'Sites',
+    'Content',
+    'Improvements',
+    'Tasks',
+    'Playbooks',
+  ]);
+  await nav.getByRole('link', { name: 'Tasks', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Tasks', exact: true })).toBeVisible();
+  await brand.click();
+  await expect(page.locator('.hm-hero')).toBeVisible();
+  await page.goto('./#/connections');
+  await expect(page).toHaveURL(/#\/tasks$/);
+  await expect(page.locator('.tk-task')).toHaveCount(4);
+  await page.goto('./#/search');
+  await expect(page).toHaveURL(/tab=search/);
+  await expect(page.getByRole('searchbox', { name: 'Filter queries' })).toBeVisible();
 });

@@ -30,7 +30,7 @@ implemented local boundary; never mix its bundle with the public demo.
   Add its navigation metadata in `app/navigation.ts` and lazy import in `app/router.tsx`.
 - Shared visual components receive data through props. Route/page components compose
   them. Keep metric definitions outside React, in `packages/core`.
-- Public demo data belongs in `apps/admin/src/data/workspace.ts`; never load private files.
+- Public demo data belongs in `apps/admin/src/data/workspace.ts` and its `content.ts` fixture; never load private files.
   Fixtures must be visibly fictional and consistent across summaries and tables.
 - Keep all copy bilingual: shared dictionary keys in `locales/en.ts` and `locales/zh-CN.ts`, site keys in `locales/site.ts`, or explicit Chinese/English pairs via `useI18n`. Format dates and
   numbers with the active locale. Reuse semantic CSS tokens for every theme and mode.

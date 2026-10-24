@@ -21,13 +21,17 @@ versioned snapshot from a local SQLite database:
   issues, and releases. Each section is its own lazy component.
 - Six date ranges, keyboard/pointer chart tooltips and data tables, filters,
   related issues, expandable release comparisons, task history and coverage.
+- Content workspace: creator filters, avatar strip, media wall/feed/roster, saved posts,
+  knowledge entities and account summaries with synthetic artwork.
+- Home through the brand; five top-level tabs: Sites, Content, Improvements, Tasks, Playbooks.
+  Search stays inside each site.
 - Three color palettes, light/dark/system modes, English/Chinese, responsive
   navigation, and reduced-motion support.
 - A read-only loopback service with an authenticated same-origin API and strict
   snapshot validation. [Local data guide](docs/local-data.md).
 
 Real connectors, the tracking receiver, scheduler/writer, CLI, and agent skills
-are **not implemented yet**. Task buttons simulate UI states only and are disabled
+are **not implemented yet**. Task buttons and content save/intake controls simulate in-memory UI states only and are disabled
 in read-only local mode. No external service is called. The public app has no
 telemetry, external fonts, or AI calls; GitHub may retain normal hosting logs.
 

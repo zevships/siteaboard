@@ -1,3 +1,5 @@
+import { validateContent, type ContentDataset } from './content.ts';
+
 /** Versioned browser-safe data contract. Counts remain null when a source has no reading. */
 export type PeriodKey = 'today' | 'yesterday' | '7d' | '30d' | 'month' | 'all';
 export type LocalizedText = { en: string; zh: string };
@@ -157,6 +159,7 @@ export type WorkspaceDataset = {
   source: 'synthetic' | 'local';
   sites: SiteDataset[];
   tasks: TaskRecord[];
+  content?: ContentDataset;
 };
 export function shiftDate(date: string, days: number): string {
   return new Date(Date.parse(date + 'T00:00:00Z') + days * 86400000).toISOString().slice(0, 10);
@@ -419,6 +422,9 @@ const siteCheck = object({
   ),
 });
 const workspaceCheck = object({
+  content: (value) => {
+    if (value !== undefined) validateContent(value);
+  },
   schemaVersion: oneOf(1),
   generatedAt: timestamp,
   source: oneOf('synthetic', 'local'),
